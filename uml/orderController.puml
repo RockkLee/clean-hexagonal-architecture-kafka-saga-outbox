@@ -1,49 +1,63 @@
 @startuml
+!define COMMENT(x) <color:grey>x</color>
 class OrderController {
+    COMMENT(order-service.order-app.api)
     +createOrder(CreateOrderCommand) : ResponseEntity<CreateOrderResponse>
 }
 
 interface OrderApplicationService {
+    COMMENT(order-service.order-domain.order-application-service.ports.input.service)
     +createOrder(CreateOrderCommand) : CreateOrderResponse
     +trackOrder(TrackOrderQuery) : TrackOrderResponse
 }
 class OrderApplicationServiceImpl implements OrderApplicationService {
+    COMMENT(order-service.order-domain.order-application-service)
     +createOrder(CreateOrderCommand) : CreateOrderResponse
     +trackOrder(TrackOrderQuery) : TrackOrderResponse
 }
 
 class OrderCreateCommandHandler {
+    COMMENT(order-service.order-domain.order-application-service)
     +createOrder(CreateOrderCommand) : CreateOrderResponse
 }
 
 class OrderCreateHelper {
+    COMMENT(order-service.order-domain.order-application-service.helper)
     +persistOrder(CreateOrderCommand) : OrderCreatedEvent
 }
 interface OrderDomainService {
+    COMMENT(order-service.order-domain.order-core-domain.service)
     + validateAndInitiateOrder(order : Order, restaurant : Restaurant) : OrderCreatedEvent
 }
 class OrderDomainServiceImpl {
+COMMENT(order-service.order-domain.order-core-domain.service.impl)
     + validateAndInitiateOrder(order : Order, restaurant : Restaurant) : OrderCreatedEvent
 }
 interface OrderRepository {
+    COMMENT(order-service.order-domain.order-application-service.ports.output.repository)
     +save(order : Order) : Order
 }
 class OrderRepositoryImpl{
+    COMMENT(order-service.order-data-access.order.adapter)
     +save(order : Order) : Order
 }
 
 class PaymentOutboxHelper {
+    COMMENT(order-service.order-domain.order-application-service.outbox.payment)
     +savePaymentOutboxMessage(payload : OrderPaymentEventPayload, orderStatus : OrderStatus, sagaStatus : SagaStatus, outboxStatus : OutboxStatus, sagaId : UUID) : void
 }
 
 interface PaymentOutboxRepository {
+    COMMENT(order-service.order-domain.order-application-service.ports.output.repository)
     +save(orderPaymentOutboxMessage : OrderPaymentOutboxMessage) : OrderPaymentOutboxMessage
 }
 class PaymentOutboxRepositoryImpl implements PaymentOutboxRepository {
+    COMMENT(order-service.order-data-access.payment.adapter)
     +save(orderPaymentOutboxMessage : OrderPaymentOutboxMessage) : OrderPaymentOutboxMessage
 }
 
 interface PaymentOutboxJpaRepository {
+    COMMENT(order-service.order-data-access.payment.adapter)
     +save(paymentOutboxEntity : PaymentOutboxEntity) : void
 }
 

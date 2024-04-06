@@ -7,7 +7,7 @@ class order-service.order-messaging.PaymentResponseKafkaListener {
 - PaymentResponseMessageListener paymentResponseMessageListener
 + void receive(List<PaymentResponseAvroModel>,List<String>,List<Integer>,List<Long>)
 }
-interface order-service.order-domain.order-application-service.ports.PaymentResponseMessageListener {
+interface order-service.order-domain.order-application-service.ports.input.PaymentResponseMessageListener {
 ~ void paymentCompleted(PaymentResponse)
 ~ void paymentCancelled(PaymentResponse)
 }

@@ -1,0 +1,36 @@
+@startuml
+!define COMMENT(x) <color:grey>x</color>
+
+interface OutboxScheduler {
+    COMMENT(infrastructure.outbox.OutboxScheduler)
+    + processOutboxMessage() : void
+}
+class PaymentOutboxScheduler {
+     COMMENT(order-service.order-domain.order-application-service.outbox.scheduler.payment)
+    + processOutboxMessage() : void
+}
+OutboxScheduler <|.d. PaymentOutboxScheduler
+
+interface PaymentRequestMessagePublisher {
+    COMMENT(order-service.order-domain.order-application-service.ports.output.message.publisher.payment)
+    +publish(message : OrderPaymentOutboxMessage, outboxCallback : BiConsumer<OrderPaymentOutboxMessage, OutboxStatus>)
+}
+class OrderPaymentEventKafkaPublisher {
+    COMMENT(order-service.order-messaging.publisher.kafka)
+    +publish(message : OrderPaymentOutboxMessage, outboxCallback : BiConsumer<OrderPaymentOutboxMessage, OutboxStatus>)
+}
+PaymentRequestMessagePublisher <|.d. OrderPaymentEventKafkaPublisher
+
+interface KafkaProducer<K extends Serializable, V extends SpecificRecordBase> {
+    COMMENT(infrastructure.kafka.kafka-producer)
+    +send(topicName: String, key: K, message: V, callback: ListenableFutureCallback<SendResult<K,V>>)
+}
+class KafkaProducerImpl<K extends Serializable, V extends SpecificRecordBase> {
+    OMMENT(infrastructure.kafka.kafka-producer)
+    +send(topicName: String, key: K, message: V, callback: ListenableFutureCallback<SendResult<K,V>>)
+}
+KafkaProducer <|.d. KafkaProducerImpl
+
+PaymentOutboxScheduler .r.> PaymentRequestMessagePublisher
+OrderPaymentEventKafkaPublisher .r.> KafkaProducer
+@enduml
