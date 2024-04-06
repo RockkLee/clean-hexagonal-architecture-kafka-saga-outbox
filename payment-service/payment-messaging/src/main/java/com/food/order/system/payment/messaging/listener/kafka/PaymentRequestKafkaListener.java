@@ -48,8 +48,9 @@ public class PaymentRequestKafkaListener implements KafkaConsumer<PaymentRequest
                 if (Objects.equals(PaymentOrderStatus.PENDING.name(),
                         paymentRequestAvroModel.getPaymentOrderStatus().name())) {
                     log.info("Processing payment for order id: {}", paymentRequestAvroModel.getOrderId());
-                    paymentRequestMessageListener.completePayment(paymentMessagingDataMapper
-                            .paymentRequestAvroModelToPaymentRequest(paymentRequestAvroModel));
+                    paymentRequestMessageListener.completePayment(
+                            paymentMessagingDataMapper.paymentRequestAvroModelToPaymentRequest(paymentRequestAvroModel)
+                    );
                 } else if(PaymentOrderStatus.CANCELLED.name().equals
                         (paymentRequestAvroModel.getPaymentOrderStatus().name())) {
                     log.info("Cancelling payment for order id: {}", paymentRequestAvroModel.getOrderId());

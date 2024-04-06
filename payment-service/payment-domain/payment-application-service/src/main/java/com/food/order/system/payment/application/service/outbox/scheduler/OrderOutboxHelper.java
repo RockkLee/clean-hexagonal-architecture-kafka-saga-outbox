@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.food.order.system.DomainConstants.UTC;
-import static com.food.order.system.outbox.order.SagaConst.ORDER_PROCESSING_SAGA;
+import static infrastructure.outbox.src.main.java.com.food.order.system.outbox.order.SagaConst.ORDER_PROCESSING_SAGA;
 
 @Component
 @Slf4j
@@ -33,11 +33,11 @@ public class OrderOutboxHelper {
 
 
     @Transactional(readOnly = true)
-    public Optional<OrderOutboxMessage> getCompletedOrderOutboxMessageBySagaIdAndPaymentStatus(UUID sagaId,
-                                                                                               PaymentStatus
-                                                                                                       paymentStatus) {
-        return orderOutboxRepository.findByTypeAndSagaIdAndPaymentStatusAndOutboxStatus(ORDER_PROCESSING_SAGA, sagaId,
-                paymentStatus, OutboxStatus.COMPLETED);
+    public Optional<OrderOutboxMessage> getCompletedOrderOutboxMessageBySagaIdAndPaymentStatus(
+            UUID sagaId, PaymentStatus paymentStatus) {
+        return orderOutboxRepository.findByTypeAndSagaIdAndPaymentStatusAndOutboxStatus(
+                ORDER_PROCESSING_SAGA, sagaId, paymentStatus, OutboxStatus.COMPLETED
+        );
     }
 
     @Transactional(readOnly = true)

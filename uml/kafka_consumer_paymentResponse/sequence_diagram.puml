@@ -1,0 +1,26 @@
+@startuml
+actor Caller
+participant "OrderPaymentSaga" as Saga
+participant "PaymentOutboxHelper" as OutboxHelper
+participant "OrderDomainService" as DomainService
+participant "OrderRepository" as OrderRepo
+participant "OrderJpaRepository" as OrderJpaRepo
+participant "OrderSagaHelper" as SagaHelper
+participant "ApprovalOutboxHelper" as ApprovalHelper
+
+Caller -> Saga : process(paymentResponse)
+Saga <-> OutboxHelper : Optional<OrderPaymentOutboxMessage> orderPaymentOutboxMessageResponse = getPaymentOutboxMessageBySagaIdAndSagaStatus(paymentResponse.getSagaId(), SagaStatus.STARTED)
+
+alt if outbox message is not present
+    Saga -> Caller : return
+else outbox message is present
+    Saga <-> OrderRepo : Order order = orderRepository.findById(new OrderId(UUID.fromString(orderId)));
+    OrderRepo <-> OrderJpaRepo: return orderJpaRepository.findById(orderId.getValue())
+    DomainService <-> Saga : OrderPaidEvent domainEvent = orderDomainService.payOrder(order)
+    Saga -> OrderRepo : orderRepository.save(order);
+    Saga <-> SagaHelper : SagaStatus sagaStatus = orderSagaHelper.orderStatusToSagaStatus(domainEvent.getOrder().getStatus())
+    Saga -> OutboxHelper : paymentOutboxHelper.save(updatedPaymentOutboxMessage)
+    Saga -> ApprovalHelper : approvalOutboxHelper.saveApprovalOutboxMessage(approvalEventPayload, domainEvent.getOrder().getStatus(), sagaStatus, OutboxStatus.STARTED, UUID.fromString(paymentResponse.getSagaId()))
+    Saga -> Caller :
+end
+@enduml

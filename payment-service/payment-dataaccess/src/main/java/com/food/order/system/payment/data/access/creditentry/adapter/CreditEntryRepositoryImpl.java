@@ -24,9 +24,9 @@ public class CreditEntryRepositoryImpl implements CreditEntryRepository {
 
     @Override
     public CreditEntry save(CreditEntry creditEntry) {
-        return creditEntryDataAccessMapper
-                .creditEntryEntityToCreditEntry(creditEntryJpaRepository
-                        .save(creditEntryDataAccessMapper.creditEntryToCreditEntryEntity(creditEntry)));
+        return creditEntryDataAccessMapper.creditEntryEntityToCreditEntry(
+                creditEntryJpaRepository.save(creditEntryDataAccessMapper.creditEntryToCreditEntryEntity(creditEntry))
+        );
     }
 
     @Override

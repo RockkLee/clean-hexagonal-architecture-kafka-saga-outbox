@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.food.order.system.outbox.order.SagaConst.ORDER_PROCESSING_SAGA;
+import static infrastructure.outbox.src.main.java.com.food.order.system.outbox.order.SagaConst.ORDER_PROCESSING_SAGA;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -231,6 +231,13 @@ class OrderApplicationServiceTest {
             return objectMapper.writeValueAsString(orderPaymentEventPayload);
         } catch (JsonProcessingException e) {
             throw new OrderDomainException("Cannot create OrderPaymentEventPayload object!");
+        }
+    }
+
+    private void  testAi() {
+        //write a for loop to say hello word
+        for (int i = 0; i < 5; i++) {
+            System.out.println("Hello world " + i);
         }
     }
 

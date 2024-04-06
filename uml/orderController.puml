@@ -1,0 +1,68 @@
+@startuml
+class OrderController {
+    +createOrder(CreateOrderCommand) : ResponseEntity<CreateOrderResponse>
+}
+
+interface OrderApplicationService {
+    +createOrder(CreateOrderCommand) : CreateOrderResponse
+    +trackOrder(TrackOrderQuery) : TrackOrderResponse
+}
+class OrderApplicationServiceImpl implements OrderApplicationService {
+    +createOrder(CreateOrderCommand) : CreateOrderResponse
+    +trackOrder(TrackOrderQuery) : TrackOrderResponse
+}
+
+class OrderCreateCommandHandler {
+    +createOrder(CreateOrderCommand) : CreateOrderResponse
+}
+
+class OrderCreateHelper {
+    +persistOrder(CreateOrderCommand) : OrderCreatedEvent
+}
+interface OrderDomainService {
+    + validateAndInitiateOrder(order : Order, restaurant : Restaurant) : OrderCreatedEvent
+}
+class OrderDomainServiceImpl {
+    + validateAndInitiateOrder(order : Order, restaurant : Restaurant) : OrderCreatedEvent
+}
+interface OrderRepository {
+    +save(order : Order) : Order
+}
+class OrderRepositoryImpl{
+    +save(order : Order) : Order
+}
+
+class PaymentOutboxHelper {
+    +savePaymentOutboxMessage(payload : OrderPaymentEventPayload, orderStatus : OrderStatus, sagaStatus : SagaStatus, outboxStatus : OutboxStatus, sagaId : UUID) : void
+}
+
+interface PaymentOutboxRepository {
+    +save(orderPaymentOutboxMessage : OrderPaymentOutboxMessage) : OrderPaymentOutboxMessage
+}
+class PaymentOutboxRepositoryImpl implements PaymentOutboxRepository {
+    +save(orderPaymentOutboxMessage : OrderPaymentOutboxMessage) : OrderPaymentOutboxMessage
+}
+
+interface PaymentOutboxJpaRepository {
+    +save(paymentOutboxEntity : PaymentOutboxEntity) : void
+}
+
+OrderController .r.> OrderApplicationService
+OrderApplicationService .r.> OrderCreateCommandHandler
+OrderCreateCommandHandler .r.> PaymentOutboxHelper
+PaymentOutboxHelper .r.> PaymentOutboxRepository
+PaymentOutboxRepository .r.> PaymentOutboxJpaRepository
+
+OrderDomainService <|.r. OrderDomainServiceImpl
+OrderRepository <|.r. OrderRepositoryImpl
+
+OrderCreateCommandHandler .u.> OrderCreateHelper
+OrderCreateHelper .u.> OrderDomainService
+OrderCreateHelper .u.> OrderRepository
+OrderDomainService .u[hidden]. OrderRepository
+OrderDomainService .u[hidden]. OrderRepositoryImpl
+OrderDomainServiceImpl .u[hidden]. OrderRepository
+OrderDomainServiceImpl .u[hidden]. OrderRepositoryImpl
+
+
+@enduml

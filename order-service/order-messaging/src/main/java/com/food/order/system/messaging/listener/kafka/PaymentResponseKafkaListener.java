@@ -45,13 +45,15 @@ public class PaymentResponseKafkaListener implements KafkaConsumer<PaymentRespon
             try {
                 if (PaymentStatus.COMPLETED == paymentResponseAvroModel.getPaymentStatus()) {
                     log.info("Processing successful payment for order id: {}", paymentResponseAvroModel.getOrderId());
-                    paymentResponseMessageListener.paymentCompleted(orderMessagingDataMapper
-                            .paymentResponseAvroModelToPaymentResponse(paymentResponseAvroModel));
+                    paymentResponseMessageListener.paymentCompleted(
+                            orderMessagingDataMapper.paymentResponseAvroModelToPaymentResponse(paymentResponseAvroModel)
+                    );
                 } else if (PaymentStatus.CANCELLED == paymentResponseAvroModel.getPaymentStatus() ||
                         PaymentStatus.FAILED == paymentResponseAvroModel.getPaymentStatus()) {
                     log.info("Processing unsuccessful payment for order id: {}", paymentResponseAvroModel.getOrderId());
-                    paymentResponseMessageListener.paymentCancelled(orderMessagingDataMapper
-                            .paymentResponseAvroModelToPaymentResponse(paymentResponseAvroModel));
+                    paymentResponseMessageListener.paymentCancelled(
+                            orderMessagingDataMapper.paymentResponseAvroModelToPaymentResponse(paymentResponseAvroModel)
+                    );
                 }
             } catch (OptimisticLockingFailureException e) {
                 //NO-OP for optimistic lock. This means another thread finished the work, do not throw error to prevent reading the data from kafka again!

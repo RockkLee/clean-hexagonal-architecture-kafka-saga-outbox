@@ -1,0 +1,36 @@
+@startuml
+interface infrastructure.kafka.KafkaConsumer {
+~ void receive(List<T>,List<String>,List<Integer>,List<Long>)
+}
+class payment-service.payment-messaging.PaymentRequestKafkaListener {
+	-paymentMessagingDataMapper : PaymentMessagingDataMapper
+	-paymentRequestMessageListener : PaymentRequestMessageListener
+	+receive(messages : List<PaymentRequestAvroModel>, keys : List<String>, partitions : List<Integer>, offsets : List<Long>) : void
+}
+interface payment-service.payment-domain.payment-applicatio/n-service.ports.input.PaymentRequestMessageListener {
+~ void completePayment(PaymentRequest)
+~ void cancelPayment(PaymentRequest)
+}
+class payment-service.payment-domain.payment-application-service.PaymentRequestMessageListenerImpl {
+- PaymentRequestHelper paymentRequestHelper
++ void completePayment(PaymentRequest)
++ void cancelPayment(PaymentRequest)
+}
+
+class payment-service.payment-domain.payment-application-service.PaymentRequestHelper {
+	-paymentDomainService : PaymentDomainService
+	-orderOutboxHelper : OrderOutboxHelper
+	-paymentResponseMessagePublisher : PaymentResponseMessagePublisher
+	-paymentDataMapper : PaymentDataMapper
+	-paymentRepository : PaymentRepository
+	-creditEntryRepository : CreditEntryRepository
+	-creditHistoryRepository : CreditHistoryRepository
+	+persistPayment(paymentRequest : PaymentRequest) : void
+	+persistCancelPayment(paymentRequest : PaymentRequest) : void
+}
+
+KafkaConsumer <|.. PaymentRequestKafkaListener
+PaymentRequestMessageListener <|.. PaymentRequestMessageListenerImpl
+PaymentRequestMessageListener <..r.. PaymentRequestKafkaListener: "PaymentRequestKafkaListener.completePayment"
+PaymentRequestHelper <..r.. PaymentRequestMessageListenerImpl: "PaymentRequestHelper.persistPaymentRequest"
+@enduml

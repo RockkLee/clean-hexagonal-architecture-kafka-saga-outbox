@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -35,20 +36,21 @@ public class PaymentOutboxScheduler implements OutboxScheduler {
 
         log.info("Processing outbox message STARTED !");
 
-        var outboxMessageResponse =
+        List<OrderPaymentOutboxMessage> outboxMessageResponse =
                 paymentOutboxHelper.getPaymentOutboxMessageByOutboxMessageStatusAndSagaStatus(
-                OutboxStatus.STARTED,
-                SagaStatus.STARTED,
-                SagaStatus.COMPENSATING)
-                        .orElseThrow(
-                                () -> new OrderDomainException("No outbox message found for processing"));
+                    OutboxStatus.STARTED,
+                    SagaStatus.STARTED,
+                    SagaStatus.COMPENSATING
+                )
+                .orElseThrow(() -> new OrderDomainException("No outbox message found for processing"));
 
         if (Objects.nonNull(outboxMessageResponse) && !outboxMessageResponse.isEmpty()) {
-
             log.info("Received {} OrderPaymentOutboxMessage with ids :  {} , sending message bus !" ,
                     outboxMessageResponse.size(),
-                    outboxMessageResponse.stream().map(orderPaymentOutboxMessage -> orderPaymentOutboxMessage.getId().toString())
-                            .collect(Collectors.joining(",")));
+                    outboxMessageResponse.stream()
+                            .map(orderPaymentOutboxMessage -> orderPaymentOutboxMessage.getId().toString())
+                            .collect(Collectors.joining(","))
+            );
             outboxMessageResponse.forEach(orderPaymentOutboxMessage -> {
                 paymentRequestMessagePublisher.publish(orderPaymentOutboxMessage,this::updateOutboxStatus);
             });

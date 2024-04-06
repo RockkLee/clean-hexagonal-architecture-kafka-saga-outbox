@@ -1,4 +1,4 @@
-package com.food.order.system.outbox.order;
+package infrastructure.outbox.src.main.java.com.food.order.system.outbox.order;
 
 public class SagaConst {
 

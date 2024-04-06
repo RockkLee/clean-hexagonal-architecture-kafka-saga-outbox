@@ -39,13 +39,10 @@ public class OrderCreateCommandHandler {
                 orderSagaHelper.orderStatusToSagaStatus(persistOrder.getOrder().getStatus()),
                 OutboxStatus.STARTED,
                 UUID.randomUUID()
-                );
+        );
 
         log.info("Returning CreateOrderResponse with order id : {}", persistOrder.getOrder().getId());
 
         return response;
     }
-
-
-
 }

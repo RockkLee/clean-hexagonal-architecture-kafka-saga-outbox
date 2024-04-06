@@ -26,10 +26,11 @@ public class PaymentOutboxRepositoryImpl implements PaymentOutboxRepository {
 
     @Override
     public OrderPaymentOutboxMessage save(OrderPaymentOutboxMessage orderPaymentOutboxMessage) {
-        return paymentOutboxDataAccessMapper
-                .paymentOutboxEntityToOrderPaymentOutboxMessage(paymentOutboxJpaRepository
-                        .save(paymentOutboxDataAccessMapper
-                                .orderPaymentOutboxMessageToOutboxEntity(orderPaymentOutboxMessage)));
+        return paymentOutboxDataAccessMapper.paymentOutboxEntityToOrderPaymentOutboxMessage(
+                paymentOutboxJpaRepository.save(
+                        paymentOutboxDataAccessMapper.orderPaymentOutboxMessageToOutboxEntity(orderPaymentOutboxMessage)
+                )
+        );
     }
 
     @Override
