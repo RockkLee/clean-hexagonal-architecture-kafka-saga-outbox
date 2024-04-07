@@ -7,7 +7,7 @@ class payment-service.payment-messaging.PaymentRequestKafkaListener {
 	-paymentRequestMessageListener : PaymentRequestMessageListener
 	+receive(messages : List<PaymentRequestAvroModel>, keys : List<String>, partitions : List<Integer>, offsets : List<Long>) : void
 }
-interface payment-service.payment-domain.payment-applicatio/n-service.ports.input.PaymentRequestMessageListener {
+interface payment-service.payment-domain.payment-application-service.ports.input.PaymentRequestMessageListener {
 ~ void completePayment(PaymentRequest)
 ~ void cancelPayment(PaymentRequest)
 }
@@ -31,6 +31,7 @@ class payment-service.payment-domain.payment-application-service.PaymentRequestH
 
 KafkaConsumer <|.. PaymentRequestKafkaListener
 PaymentRequestMessageListener <|.. PaymentRequestMessageListenerImpl
-PaymentRequestMessageListener <..r.. PaymentRequestKafkaListener: "PaymentRequestKafkaListener.completePayment"
-PaymentRequestHelper <..r.. PaymentRequestMessageListenerImpl: "PaymentRequestHelper.persistPaymentRequest"
+PaymentRequestMessageListener <..l.. PaymentRequestKafkaListener: "PaymentRequestKafkaListener.completePayment"
+PaymentRequestHelper <..l.. PaymentRequestMessageListenerImpl: "PaymentRequestHelper.persistPaymentRequest"
+PaymentRequestHelper.l[hidden].PaymentRequestMessageListener
 @enduml

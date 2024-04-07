@@ -1,5 +1,6 @@
 package com.food.order.system;
 
+import com.food.order.system.domain.event.OrderCreatedEvent;
 import com.food.order.system.dto.create.CreateOrderCommand;
 import com.food.order.system.dto.create.CreateOrderResponse;
 import com.food.order.system.outbox.OutboxStatus;
@@ -29,7 +30,7 @@ public class OrderCreateCommandHandler {
 
     @Transactional
     public CreateOrderResponse createOrder(CreateOrderCommand createOrderCommand) {
-        var persistOrder = orderCreateHelper.persistOrder(createOrderCommand);
+        OrderCreatedEvent persistOrder = orderCreateHelper.persistOrder(createOrderCommand);
         log.info("createOrder with id: {}", persistOrder.getOrder().getId().getValue());
         var response = orderDataMapper.orderToCreateOrderResponse(persistOrder.getOrder(),"Order created successfully");
 

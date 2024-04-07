@@ -30,8 +30,7 @@ public class OrderPaymentEventKafkaPublisher implements PaymentRequestMessagePub
     public void publish(OrderPaymentOutboxMessage orderPaymentOutboxMessage,
                         BiConsumer<OrderPaymentOutboxMessage, OutboxStatus> outboxCallback) {
         OrderPaymentEventPayload orderPaymentEventPayload =
-                kafkaMessageHelper.getOrderEventPayload(orderPaymentOutboxMessage.getPayload(),
-                        OrderPaymentEventPayload.class);
+                kafkaMessageHelper.getOrderEventPayload(orderPaymentOutboxMessage.getPayload(), OrderPaymentEventPayload.class);
 
         String sagaId = orderPaymentOutboxMessage.getSagaId().toString();
 
@@ -42,17 +41,19 @@ public class OrderPaymentEventKafkaPublisher implements PaymentRequestMessagePub
         try {
             PaymentRequestAvroModel paymentRequestAvroModel = orderMessagingDataMapper
                     .orderPaymentEventToPaymentRequestAvroModel(sagaId, orderPaymentEventPayload);
-
-            kafkaProducer.send(orderServiceConfigData.getPaymentRequestTopicName(),
+            kafkaProducer.send(
+                    orderServiceConfigData.getPaymentRequestTopicName(),
                     sagaId,
                     paymentRequestAvroModel,
-                    kafkaMessageHelper.getKafkaCallback(orderServiceConfigData.getPaymentRequestTopicName(),
+                    kafkaMessageHelper.getKafkaCallback(
+                            orderServiceConfigData.getPaymentRequestTopicName(),
                             paymentRequestAvroModel,
                             orderPaymentOutboxMessage,
                             outboxCallback,
                             orderPaymentEventPayload.getOrderId(),
-                            "PaymentRequestAvroModel"));
-
+                            "PaymentRequestAvroModel"
+                    )
+            );
             log.info("OrderPaymentEventPayload sent to Kafka for order id: {} and saga id: {}",
                     orderPaymentEventPayload.getOrderId(), sagaId);
         } catch (Exception e) {

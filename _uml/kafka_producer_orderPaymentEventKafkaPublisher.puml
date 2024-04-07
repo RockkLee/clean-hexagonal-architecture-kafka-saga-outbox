@@ -26,11 +26,13 @@ interface KafkaProducer<K extends Serializable, V extends SpecificRecordBase> {
     +send(topicName: String, key: K, message: V, callback: ListenableFutureCallback<SendResult<K,V>>)
 }
 class KafkaProducerImpl<K extends Serializable, V extends SpecificRecordBase> {
-    OMMENT(infrastructure.kafka.kafka-producer)
+    COMMENT(infrastructure.kafka.kafka-producer)
     +send(topicName: String, key: K, message: V, callback: ListenableFutureCallback<SendResult<K,V>>)
 }
 KafkaProducer <|.d. KafkaProducerImpl
 
 PaymentOutboxScheduler .r.> PaymentRequestMessagePublisher
-OrderPaymentEventKafkaPublisher .r.> KafkaProducer
+OrderPaymentEventKafkaPublisher .r.> KafkaProducer: "kafkaProducer.send(\
+\ntopicName: orderServiceConfigData.getPaymentRequestTopicName, \nkey: sagaId, \npayload: aymentReuestAvroModel, \n... \n\
+)"
 @enduml

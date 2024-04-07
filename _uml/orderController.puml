@@ -62,10 +62,11 @@ interface PaymentOutboxJpaRepository {
 }
 
 OrderController .r.> OrderApplicationService
-OrderApplicationService .r.> OrderCreateCommandHandler
+OrderApplicationServiceImpl .r.> OrderCreateCommandHandler
+OrderController .r[hidden]. OrderApplicationServiceImpl
 OrderCreateCommandHandler .r.> PaymentOutboxHelper
 PaymentOutboxHelper .r.> PaymentOutboxRepository
-PaymentOutboxRepository .r.> PaymentOutboxJpaRepository
+PaymentOutboxRepositoryImpl .r.> PaymentOutboxJpaRepository
 
 OrderDomainService <|.r. OrderDomainServiceImpl
 OrderRepository <|.r. OrderRepositoryImpl

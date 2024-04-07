@@ -21,10 +21,10 @@ public class KafkaMessageHelper {
     private final ObjectMapper objectMapper;
 
 
-    public <T, U> ListenableFutureCallback<SendResult<String, T>>
-    getKafkaCallback(String responseTopicName, T avroModel, U outboxMessage,
-                     BiConsumer<U, OutboxStatus> outboxCallback,
-                     String orderId, String avroModelName) {
+    public <T, U> ListenableFutureCallback<SendResult<String, T>> getKafkaCallback(
+            String responseTopicName, T avroModel, U outboxMessage,
+            BiConsumer<U, OutboxStatus> outboxCallback,
+            String orderId, String avroModelName) {
         return new ListenableFutureCallback<SendResult<String, T>>() {
             @Override
             public void onFailure(Throwable ex) {

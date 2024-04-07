@@ -35,8 +35,8 @@ public class OrderController {
 
     @GetMapping("/{orderTrackingId}")
     public ResponseEntity<TrackOrderResponse> trackOrder(@PathVariable("orderTrackingId") UUID orderTrackingId) {
-        TrackOrderResponse trackOrderResponse = orderApplicationService.trackOrder
-                (new TrackOrderQuery(orderTrackingId));
+        TrackOrderResponse trackOrderResponse =
+                orderApplicationService.trackOrder(new TrackOrderQuery(orderTrackingId));
         log.info("Tracked order with tracking id: {}", orderTrackingId);
         return ResponseEntity.ok(trackOrderResponse);
     }

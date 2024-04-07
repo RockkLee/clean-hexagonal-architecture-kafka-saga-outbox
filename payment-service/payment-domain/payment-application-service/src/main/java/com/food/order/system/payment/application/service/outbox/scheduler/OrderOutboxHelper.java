@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.food.order.system.DomainConstants.UTC;
-import static infrastructure.outbox.src.main.java.com.food.order.system.outbox.order.SagaConst.ORDER_PROCESSING_SAGA;
+import static com.food.order.system.outbox.order.SagaConst.ORDER_PROCESSING_SAGA;
 
 @Component
 @Slf4j
