@@ -53,17 +53,19 @@ infra.adapter.controller
   V
 //Primary port
 application-service.ports.input.service
+application-service.serviceImpl
   |
- Aggregate =Entities + ValueObjects
+ Aggregate = Entities + ValueObjects
   |
-  V                                          //Secondary port                                                //Secondary adpater
-domain.domain-service ---DomainEvent---> application-service.ports.output.message ---MessagePublisher---> infra.adapter.rabbitmq/kafka ------> send data to another microserver
+  V                                          //Secondary port                            //Secondary adpater(RabbitMQ/Kafka)
+domain.domain-service ---DomainEvent---> application-service.ports.output.msgPublisher | infra.adapter.msgPublisherImpl ------> send data to another microservice
   |
  Aggregate =Entities + ValueObjects
   |
   V
 //Secondary port
 application-service.ports.output.repository
+application-service.ports.output.repositoryImpl
   |
  Po (Persistent Object)
   |
@@ -71,6 +73,7 @@ application-service.ports.output.repository
 //Secondary adapter
 infra.adapter.JpaRepository 
 ```
+![](hexogonal-graph.png)
 
 ### Port
 ##### Primary (or Driving) Ports: 
