@@ -122,6 +122,7 @@ application-service.ports.output.repositoryImpl
 infra.adapter.JpaRepository 
 ```
 ![](hexogonal-graph.png)
+![](ports-adapters.png)
 
 ### Port
 ##### Primary (or Driving) Ports: 
