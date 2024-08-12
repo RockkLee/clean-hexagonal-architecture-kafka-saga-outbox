@@ -234,4 +234,11 @@ class OrderApplicationServiceTest {
         }
     }
 
+    private void  testAi() {
+        //write a for loop to say hello word
+        for (int i = 0; i < 5; i++) {
+            System.out.println("Hello world " + i);
+        }
+    }
+
 }

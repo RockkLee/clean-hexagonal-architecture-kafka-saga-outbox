@@ -1,0 +1,29 @@
+@startuml
+actor Caller
+participant "PaymentRequestHelper" as Helper
+participant "OrderOutboxHelper" as OutboxHelper
+participant "PaymentResponseMessagePublisher" as MessagePublisher
+participant "CreditEntryRepository" as CreditEntryRepo
+participant "CreditHistoryRepository" as CreditHistoryRepo
+participant "PaymentDomainService" as DomainService
+participant "PaymentRepository" as PaymentRepo
+participant "PaymentJpaRepository" as PaymentJpaRepo
+
+Caller -> Helper : persistPayment(paymentRequest)
+Helper -> OutboxHelper : getCompletedOrderOutboxMessageBySagaIdAndPaymentStatus(paymentRequest.getSagaId(), PaymentStatus.COMPLETED)
+OutboxHelper -> Helper : outboxMessage.isPresent()
+alt if outbox message is present
+    Helper -> MessagePublisher : publish(outboxMessage.get(), orderOutboxHelper::updateOutboxMessage)
+    Helper --> Caller : return
+else no outbox message
+    Helper <-> CreditEntryRepo :  CreditEntry creditEntry = findByCustomerId(payment.getCustomerId())
+    Helper <-> CreditHistoryRepo : List<CreditHistory> creditHistory = findByCustomerId(payment.getCustomerId())
+    Helper -> Helper : persistDbObject(payment, creditEntry, creditHistory, failureMessage)
+    Helper -> PaymentRepo : save(payment)
+    PaymentRepo -> PaymentJpaRepo : save(...)
+    Helper <-> DomainService : PaymentEvent paymentEvent = paymentDomainService.validateAndInitializePayment(payment, creditEntry, creditHistory, failureMessage)
+    Helper -> OutboxHelper : orderOutboxHelper.saveOrderOutboxMessage(paymentEventToOrderEventPayload(paymentEvent), paymentEvent.getPayment().getStatus(), OutboxStatus.STARTED, UUID.fromString(paymentRequest.getSagaId()))
+    OutboxHelper -> Helper :
+    Helper --> Caller :
+end
+@enduml

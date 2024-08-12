@@ -43,10 +43,12 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
     @Override
     @Transactional
     public void process(PaymentResponse paymentResponse) {
+        //1. get paymentOutboxMsg by saga id and saga status from paymentResponse
         Optional<OrderPaymentOutboxMessage> orderPaymentOutboxMessageResponse =
                 paymentOutboxHelper.getPaymentOutboxMessageBySagaIdAndSagaStatus(
                         UUID.fromString(paymentResponse.getSagaId()),
-                        SagaStatus.STARTED);
+                        SagaStatus.STARTED
+                );
 
         if (orderPaymentOutboxMessageResponse.isEmpty()) {
             log.info("An outbox message with saga id: {} is already processed!", paymentResponse.getSagaId());
@@ -55,19 +57,27 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
 
         OrderPaymentOutboxMessage orderPaymentOutboxMessage = orderPaymentOutboxMessageResponse.get();
 
+        //2. execute domain service
         OrderPaidEvent domainEvent = completePaymentForOrder(paymentResponse);
 
+        //3. update status depending on OrderPaidEvent.getOrder().getStatus()
         SagaStatus sagaStatus = orderSagaHelper.orderStatusToSagaStatus(domainEvent.getOrder().getStatus());
 
-        paymentOutboxHelper.save(getUpdatedPaymentOutboxMessage(orderPaymentOutboxMessage,
-                domainEvent.getOrder().getStatus(), sagaStatus));
+        //4. save paymentOutboxMsg with updated status
+        paymentOutboxHelper.save(
+                getUpdatedPaymentOutboxMessage(
+                        orderPaymentOutboxMessage, domainEvent.getOrder().getStatus(), sagaStatus
+                )
+        );
 
-        approvalOutboxHelper
-                .saveApprovalOutboxMessage(orderDataMapper.orderPaidEventToOrderApprovalEventPayload(domainEvent),
-                        domainEvent.getOrder().getStatus(),
-                        sagaStatus,
-                        OutboxStatus.STARTED,
-                        UUID.fromString(paymentResponse.getSagaId()));
+        //5. save approvalOutboxMsg with updated status
+        approvalOutboxHelper.saveApprovalOutboxMessage(
+                orderDataMapper.orderPaidEventToOrderApprovalEventPayload(domainEvent),
+                domainEvent.getOrder().getStatus(),
+                sagaStatus,
+                OutboxStatus.STARTED,
+                UUID.fromString(paymentResponse.getSagaId())
+        );
 
         log.info("Order with id: {} is paid", domainEvent.getOrder().getId().getValue());
     }
@@ -75,11 +85,11 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
     @Override
     @Transactional
     public void rollback(PaymentResponse paymentResponse) {
-
         Optional<OrderPaymentOutboxMessage> orderPaymentOutboxMessageResponse =
                 paymentOutboxHelper.getPaymentOutboxMessageBySagaIdAndSagaStatus(
                         UUID.fromString(paymentResponse.getSagaId()),
-                        getCurrentSagaStatus(paymentResponse.getPaymentStatus()));
+                        getCurrentSagaStatus(paymentResponse.getPaymentStatus())
+                );
 
         if (orderPaymentOutboxMessageResponse.isEmpty()) {
             log.info("An outbox message with saga id: {} is already roll backed!", paymentResponse.getSagaId());
@@ -112,12 +122,11 @@ public class OrderPaymentSaga implements SagaStep<PaymentResponse> {
         return orderResponse.get();
     }
 
-    private OrderPaymentOutboxMessage getUpdatedPaymentOutboxMessage(OrderPaymentOutboxMessage
-                                                                             orderPaymentOutboxMessage,
-                                                                     OrderStatus
-                                                                             orderStatus,
-                                                                     SagaStatus
-                                                                             sagaStatus) {
+    private OrderPaymentOutboxMessage getUpdatedPaymentOutboxMessage(
+            OrderPaymentOutboxMessage orderPaymentOutboxMessage,
+            OrderStatus orderStatus,
+            SagaStatus sagaStatus
+    ) {
         orderPaymentOutboxMessage.setProcessedAt(ZonedDateTime.now(ZoneId.of(UTC)));
         orderPaymentOutboxMessage.setOrderStatus(orderStatus);
         orderPaymentOutboxMessage.setSagaStatus(sagaStatus);

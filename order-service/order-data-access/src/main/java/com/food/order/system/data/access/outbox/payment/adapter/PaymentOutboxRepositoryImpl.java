@@ -26,24 +26,28 @@ public class PaymentOutboxRepositoryImpl implements PaymentOutboxRepository {
 
     @Override
     public OrderPaymentOutboxMessage save(OrderPaymentOutboxMessage orderPaymentOutboxMessage) {
-        return paymentOutboxDataAccessMapper
-                .paymentOutboxEntityToOrderPaymentOutboxMessage(paymentOutboxJpaRepository
-                        .save(paymentOutboxDataAccessMapper
-                                .orderPaymentOutboxMessageToOutboxEntity(orderPaymentOutboxMessage)));
+        return paymentOutboxDataAccessMapper.paymentOutboxEntityToOrderPaymentOutboxMessage(
+                paymentOutboxJpaRepository.save(
+                        paymentOutboxDataAccessMapper.orderPaymentOutboxMessageToOutboxEntity(orderPaymentOutboxMessage)
+                )
+        );
     }
 
     @Override
     public Optional<List<OrderPaymentOutboxMessage>> findByTypeAndOutboxStatusAndSagaStatus(String sagaType,
                                                                                             OutboxStatus outboxStatus,
                                                                                             SagaStatus... sagaStatus) {
-        return Optional.of(paymentOutboxJpaRepository.findByTypeAndOutboxStatusAndSagaStatusIn(sagaType,
-                        outboxStatus,
-                        Arrays.asList(sagaStatus))
-                .orElseThrow(() -> new PaymentOutboxNotFoundException("Payment outbox object " +
-                        "could not be found for saga type " + sagaType))
+        return Optional.of(
+                paymentOutboxJpaRepository.findByTypeAndOutboxStatusAndSagaStatusIn(
+                        sagaType,outboxStatus,Arrays.asList(sagaStatus))
+                .orElseThrow(() ->
+                        new PaymentOutboxNotFoundException(
+                                "Payment outbox object could not be found for saga type " + sagaType)
+                )
                 .stream()
                 .map(paymentOutboxDataAccessMapper::paymentOutboxEntityToOrderPaymentOutboxMessage)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList())
+        );
     }
 
     @Override

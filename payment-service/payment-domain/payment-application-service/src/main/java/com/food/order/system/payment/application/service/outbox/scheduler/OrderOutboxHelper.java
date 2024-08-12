@@ -33,11 +33,11 @@ public class OrderOutboxHelper {
 
 
     @Transactional(readOnly = true)
-    public Optional<OrderOutboxMessage> getCompletedOrderOutboxMessageBySagaIdAndPaymentStatus(UUID sagaId,
-                                                                                               PaymentStatus
-                                                                                                       paymentStatus) {
-        return orderOutboxRepository.findByTypeAndSagaIdAndPaymentStatusAndOutboxStatus(ORDER_PROCESSING_SAGA, sagaId,
-                paymentStatus, OutboxStatus.COMPLETED);
+    public Optional<OrderOutboxMessage> getCompletedOrderOutboxMessageBySagaIdAndPaymentStatus(
+            UUID sagaId, PaymentStatus paymentStatus) {
+        return orderOutboxRepository.findByTypeAndSagaIdAndPaymentStatusAndOutboxStatus(
+                ORDER_PROCESSING_SAGA, sagaId, paymentStatus, OutboxStatus.COMPLETED
+        );
     }
 
     @Transactional(readOnly = true)

@@ -1,0 +1,52 @@
+@startuml
+interface infrastructure.kafka.KafkaConsumer {
+~ void receive(List<T>,List<String>,List<Integer>,List<Long>)
+}
+class order-service.order-messaging.PaymentResponseKafkaListener {
+- OrderMessagingDataMapper orderMessagingDataMapper
+- PaymentResponseMessageListener paymentResponseMessageListener
++ void receive(List<PaymentResponseAvroModel>,List<String>,List<Integer>,List<Long>)
+}
+interface order-service.order-domain.order-application-service.ports.input.PaymentResponseMessageListener {
+~ void paymentCompleted(PaymentResponse)
+~ void paymentCancelled(PaymentResponse)
+}
+class order-service.order-domain.order-application-service.PaymentResponseMessageListenerImpl {
+- OrderPaymentSaga orderPaymentSaga
++ void paymentCompleted(PaymentResponse)
++ void paymentCancelled(PaymentResponse)
+}
+
+interface infrastructure.saga.SagaStep<T> {
+    +process(data : T) : void
+    +rollback(data : T) : void
+}
+class order-service.order-domain.order-application-service.saga.OrderPaymentSaga {
+    -orderDomainService : OrderDomainService
+    -orderRepository : OrderRepository
+    -paymentOutboxHelper : PaymentOutboxHelper
+    -approvalOutboxHelper : ApprovalOutboxHelper
+    -orderSagaHelper : OrderSagaHelper
+    -orderDataMapper : OrderDataMapper
+
+    +process(PaymentResponse paymentResponse)
+    +rollback(PaymentResponse paymentResponse)
+    -findOrder(String orderId) : Order
+    -getUpdatedPaymentOutboxMessage(OrderPaymentOutboxMessage, OrderStatus, SagaStatus) : OrderPaymentOutboxMessage
+    -completePaymentForOrder(PaymentResponse) : OrderPaidEvent
+    -getCurrentSagaStatus(PaymentStatus) : SagaStatus[]
+    -rollbackPaymentForOrder(PaymentResponse) : Order
+    -getUpdatedApprovalOutboxMessage(String, OrderStatus, SagaStatus) : OrderApprovalOutboxMessage
+}
+
+SagaStep <|....OrderPaymentSaga
+KafkaConsumer <|.. PaymentResponseKafkaListener
+KafkaConsumer ..d[hidden].. PaymentResponseKafkaListener
+PaymentResponseKafkaListener ..r..> PaymentResponseMessageListener: PaymentResponseMessageListener.paymentComplete
+PaymentResponseKafkaListener ..r[hidden].. PaymentResponseMessageListenerImpl
+PaymentResponseKafkaListener ..r[hidden].. OrderPaymentSaga
+SagaStep ..r[hidden]..OrderPaymentSaga
+SagaStep ..r[hidden]..PaymentResponseMessageListener
+PaymentResponseMessageListener <|.. PaymentResponseMessageListenerImpl
+PaymentResponseMessageListenerImpl ..r..> OrderPaymentSaga: OrderPaymentSaga.process
+@enduml

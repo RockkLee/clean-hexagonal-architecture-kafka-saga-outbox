@@ -24,9 +24,9 @@ public class PaymentRepositoryImpl implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        return paymentDataAccessMapper
-                .paymentEntityToPayment(paymentJpaRepository
-                        .save(paymentDataAccessMapper.paymentToPaymentEntity(payment)));
+        return paymentDataAccessMapper.paymentEntityToPayment(
+                paymentJpaRepository.save(paymentDataAccessMapper.paymentToPaymentEntity(payment))
+        );
     }
 
     @Override
